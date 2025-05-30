@@ -1,0 +1,36 @@
+#!/bin/bash
+
+RESOURCE="pod"
+NAMESPACE="default"
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    -r|--resource)
+      RESOURCE="$2"
+      shift 2
+      ;;
+    -n|--namespace)
+      NAMESPACE="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown parameter: $1"
+      echo "Usage: kubectl plugin -r <resource> -n <namespace>"
+      exit 1
+      ;;
+  esac
+done
+
+# Перевірка підтримки ресурсу
+if [[ "$RESOURCE" != "pod" ]]; then
+  echo "❌ Sorry, only 'pod' resource is supported for now."
+  exit 1
+fi
+
+echo -e "Resource\tNamespace\tName\tCPU\tMemory"
+k3s kubectl top "$RESOURCE" -n "$NAMESPACE" --no-headers | while read -r line; do
+  NAME=$(echo "$line" | awk '{print $1}')
+  CPU=$(echo "$line" | awk '{print $2}')
+  MEMORY=$(echo "$line" | awk '{print $3}')
+  echo -e "$RESOURCE\t$NAMESPACE\t$NAME\t$CPU\t$MEMORY"
+done
