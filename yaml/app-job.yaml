@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: demo-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: demo-job-container
+        image: nginx
+        command: ["/bin/sh", "-c"]
+        args: ["echo Hello from Job && sleep 30"]
+      restartPolicy: Never
+  backoffLimit: 4
